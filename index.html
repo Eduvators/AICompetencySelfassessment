@@ -1229,19 +1229,19 @@ function createHorizontalBarChart(clusterScores) {
                 let yPos = 20;
                 
                 // Title
-                doc.setFontSize(18);
+                doc.setFontSize(16);
                 doc.setTextColor(52, 152, 219);
                 doc.text('Educator AI Competency Assessment Report', width/2, yPos, { align: 'center' });
-                yPos += 10;
+                yPos += 5;
 
 		// Subtitle
-                doc.setFontSize(14);
+                doc.setFontSize(12);
                 doc.setTextColor(52, 152, 219);
                 doc.text('www.eduvators.net', width/2, yPos, { align: 'center' });
-                yPos += 15;
+                yPos += 10;
 		    
                 // Persona
-                doc.setFontSize(16);
+                doc.setFontSize(14);
                 doc.setTextColor(52, 152, 219);
                 doc.text(`AI Educator Persona: ${currentPersona.name}`, width/2, yPos, { align: 'center' });
                 yPos += 15;
