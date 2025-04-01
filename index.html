@@ -1233,7 +1233,13 @@ function createHorizontalBarChart(clusterScores) {
                 doc.setTextColor(52, 152, 219);
                 doc.text('Educator AI Competency Assessment Report', width/2, yPos, { align: 'center' });
                 yPos += 15;
-                
+
+		// Subtitle
+                doc.setFontSize(18);
+                doc.setTextColor(52, 152, 219);
+                doc.text('www.eduvators.net', width/2, yPos, { align: 'center' });
+                yPos += 15;
+		    
                 // Persona
                 doc.setFontSize(16);
                 doc.setTextColor(52, 152, 219);
