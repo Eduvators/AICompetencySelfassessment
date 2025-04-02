@@ -1396,9 +1396,29 @@ function createHorizontalBarChart(clusterScores) {
                                 yPos += 8;
                             }
                         });
-                        
-                        yPos += 5; // Extra space between competency areas
-                    });
+			    // Check if this question will fit on the current page
+        			if (yPos + (splitQ.length * 5) + 15 > doc.internal.pageSize.getHeight() - margin) {
+            			doc.addPage();
+            			yPos = 20;
+        		}
+        
+        			doc.text(splitQ, margin, yPos);
+        			yPos += splitQ.length * 5 + 2;
+        
+			// Format and split the response text
+        			const responseFormatted = `Your response: ${responseText}`;
+        			const splitResponse = doc.splitTextToSize(responseFormatted, width - 2*margin - 5);
+        
+        		// Check if response will fit on current page
+        			if (yPos + (splitResponse.length * 5) + 10 > doc.internal.pageSize.getHeight() - margin) {
+           				doc.addPage();
+            				yPos = 20;
+        		}
+        
+        		doc.text(splitResponse, margin + 5, yPos);
+        		yPos += splitResponse.length * 5 + 8; // Increased spacing for better readability
+		}
+	});
 			
 		    // Add footnote
                     doc.setFontSize(12);
