@@ -1354,72 +1354,103 @@ function createHorizontalBarChart(clusterScores) {
                     });
                     
                     // Add a new page for question responses
-                    doc.addPage();
-                    yPos = 20;
-                    
-                    doc.setFontSize(14);
-                    doc.setFont(undefined, 'bold');
-                    doc.text('Your Responses', margin, yPos);
-                    yPos += 10;
-                    
-                    doc.setFontSize(12);
-                    doc.setFont(undefined, 'normal');
-                    
-                    // Group questions by competency area
-                    competencyClusters.forEach((cluster, clusterIndex) => {
-                        if (yPos + 50 > doc.internal.pageSize.getHeight() - margin) {
-                            doc.addPage();
-                            yPos = 20;
-                        }
-                        
-                        doc.setFontSize(13);
-                        doc.setFont(undefined, 'bold');
-                        doc.text(`${clusterIndex + 1}. ${cluster.name}`, margin, yPos);
-                        yPos += 8;
-                        
-                        doc.setFontSize(11);
-                        doc.setFont(undefined, 'normal');
-                        
-                        // Loop through each question in this competency area
-                        cluster.questions.forEach(qNum => {
-                            const qElement = document.querySelector(`label[for="q${qNum}-${userResponses['q' + qNum]}"]`);
-                            if (qElement) {
-                                const questionText = document.querySelector(`#q${qNum}-1`).closest('.question').querySelector('p').textContent;
-                                const responseText = qElement.textContent;
-                                
-                                const qText = `Q${Math.floor((qNum-1)/3) + 1}.${((qNum-1)%3) + 1}: ${questionText.split(':')[1].trim()}`;
-                                const splitQ = doc.splitTextToSize(qText, width - 2*margin);
-                                doc.text(splitQ, margin, yPos);
-                                yPos += splitQ.length * 5 + 2;
-                                
-                                doc.text(`Your response: ${responseText}`, margin + 5, yPos);
-                                yPos += 8;
-                            }
-                        });
-			    // Check if this question will fit on the current page
-        			if (yPos + (splitQ.length * 5) + 15 > doc.internal.pageSize.getHeight() - margin) {
-            			doc.addPage();
-            			yPos = 20;
-        		}
-        
-        			doc.text(splitQ, margin, yPos);
-        			yPos += splitQ.length * 5 + 2;
-        
-			// Format and split the response text
-        			const responseFormatted = `Your response: ${responseText}`;
-        			const splitResponse = doc.splitTextToSize(responseFormatted, width - 2*margin - 5);
-        
-        		// Check if response will fit on current page
-        			if (yPos + (splitResponse.length * 5) + 10 > doc.internal.pageSize.getHeight() - margin) {
-           				doc.addPage();
-            				yPos = 20;
-        		}
-        
-        		doc.text(splitResponse, margin + 5, yPos);
-        		yPos += splitResponse.length * 5 + 8; // Increased spacing for better readability
-		}
-	});
-			
+doc.addPage();
+yPos = 20;
+
+doc.setFontSize(14);
+doc.setFont(undefined, 'bold');
+doc.text('Your Responses', margin, yPos);
+yPos += 10;
+
+// Loop through competency clusters
+competencyClusters.forEach((cluster, clusterIndex) => {
+    // Check if need new page for cluster heading
+    if (yPos + 15 > doc.internal.pageSize.getHeight() - margin) {
+        doc.addPage();
+        yPos = 20;
+    }
+    
+    // Add cluster heading
+    doc.setFontSize(13);
+    doc.setFont(undefined, 'bold');
+    doc.text(`${clusterIndex + 1}. ${cluster.name}`, margin, yPos);
+    yPos += 8;
+    
+    // Reset font for questions
+    doc.setFontSize(11);
+    doc.setFont(undefined, 'normal');
+    
+    // Process each question in this cluster
+    cluster.questions.forEach(qNum => {
+        const qElement = document.querySelector(`label[for="q${qNum}-${userResponses['q' + qNum]}"]`);
+        if (qElement) {
+            // Get question and answer text
+            const questionText = document.querySelector(`#q${qNum}-1`).closest('.question').querySelector('p').textContent;
+            const responseText = qElement.textContent;
+            
+            // Format question number
+            const qNumFormatted = `Q${Math.floor((qNum-1)/3) + 1}.${((qNum-1)%3) + 1}:`;
+            const qTextContent = questionText.split(':')[1].trim();
+            
+            // Check if we need a new page for this question
+            if (yPos + 20 > doc.internal.pageSize.getHeight() - margin) {
+                doc.addPage();
+                yPos = 20;
+            }
+            
+            // Add question number in bold
+            doc.setFont(undefined, 'bold');
+            doc.text(qNumFormatted, margin, yPos);
+            doc.setFont(undefined, 'normal');
+            
+            // Add question text with wrapping
+            const questionWidth = width - 2*margin - 15; // Account for indentation
+            const splitQ = doc.splitTextToSize(qTextContent, questionWidth);
+            doc.text(splitQ, margin + 15, yPos);
+            
+            // Move position down based on question text length
+            yPos += Math.max(5, splitQ.length * 5);
+            
+            // Check if we need a new page for the answer
+            if (yPos + 15 > doc.internal.pageSize.getHeight() - margin) {
+                doc.addPage();
+                yPos = 20;
+            }
+            
+            // Add "Your response:" text in bold
+            doc.setFont(undefined, 'bold');
+            doc.text("Your response:", margin + 5, yPos);
+            doc.setFont(undefined, 'normal');
+            
+            // Calculate available width for response
+            const respWidth = width - 2*margin - 30; // Further indent response
+            
+            // Split response text to fit width
+            const splitResp = doc.splitTextToSize(responseText, respWidth);
+            
+            // Check if response would overflow page
+            if (yPos + (splitResp.length * 5) + 5 > doc.internal.pageSize.getHeight() - margin) {
+                doc.addPage();
+                yPos = 20;
+                
+                // Re-add the "Your response:" text on new page
+                doc.setFont(undefined, 'bold');
+                doc.text("Your response:", margin + 5, yPos);
+                doc.setFont(undefined, 'normal');
+            }
+            
+            // Add response text
+            doc.text(splitResp, margin + 30, yPos);
+            
+            // Move down based on response length plus extra space
+            yPos += splitResp.length * 5 + 10;
+        }
+    });
+    
+    // Add extra space after each competency section
+    yPos += 5;
+});
+	
 		    // Add footnote
                     doc.setFontSize(12);
                     doc.text('The Educator Competency Framework this assessment is based on is available for download at: https://www.eduvators.net/product-detail/educator-ai-competency-framework/2409', margin, yPos);
