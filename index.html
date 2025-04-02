@@ -1433,14 +1433,36 @@ competencyClusters.forEach((cluster, clusterIndex) => {
                 doc.addPage();
                 yPos = 20;
                 
-                // Re-add the "Your response:" text on new page
-                doc.setFont(undefined, 'bold');
-                doc.text("Your response:", margin + 5, yPos);
-                doc.setFont(undefined, 'normal');
-            }
-            
-            // Add response text
-            doc.text(splitResp, margin + 30, yPos);
+        	// Add "Your response:" text in bold
+			doc.setFont(undefined, 'bold');
+			doc.text("Your response:", margin + 5, yPos);
+			doc.setFont(undefined, 'normal');
+
+		// Move down after "Your response:" text
+			yPos += 5; // Add space between "Your response:" and the actual response
+
+		// Calculate available width for response
+		const respWidth = width - 2*margin - 30; // Further indent response
+
+		// Split response text to fit width
+		const splitResp = doc.splitTextToSize(responseText, respWidth);
+
+		// Check if response would overflow page
+		if (yPos + (splitResp.length * 5) + 5 > doc.internal.pageSize.getHeight() - margin) {
+  			doc.addPage();
+    			yPos = 20;
+    
+    		// Re-add the "Your response:" text on new page
+    			doc.setFont(undefined, 'bold');
+    			doc.text("Your response:", margin + 5, yPos);
+    			doc.setFont(undefined, 'normal');
+    			yPos += 5; // Add space here too if page breaks	
+		}
+
+		// Add response text
+		doc.text(splitResp, margin + 30, yPos);
+
+            	}
             
             // Move down based on response length plus extra space
             yPos += splitResp.length * 5 + 10;
