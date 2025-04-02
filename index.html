@@ -1456,12 +1456,7 @@ competencyClusters.forEach((cluster, clusterIndex) => {
     // Add extra space after each competency section
     yPos += 5;
 });
-	
-		    // Add footnote
-                    doc.setFontSize(12);
-                    doc.text('The Educator Competency Framework this assessment is based on is available for download at: https://www.eduvators.net/product-detail/educator-ai-competency-framework/2409', margin, yPos);
-                    yPos += 8;
-			
+		
                     // Add date and time at the bottom
                     const now = new Date();
                     doc.setFontSize(10);
