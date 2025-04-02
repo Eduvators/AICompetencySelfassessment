@@ -1229,10 +1229,10 @@ function createHorizontalBarChart(clusterScores) {
                 let yPos = 20;
                 
                 // Title
-                doc.setFontSize(16);
+                doc.setFontSize(18);
                 doc.setTextColor(52, 152, 219);
                 doc.text('Educator AI Competency Assessment Report', width/2, yPos, { align: 'center' });
-                yPos += 5;
+                yPos += 8;
 
 		// Subtitle
                 doc.setFontSize(12);
@@ -1241,7 +1241,7 @@ function createHorizontalBarChart(clusterScores) {
                 yPos += 10;
 		    
                 // Persona
-                doc.setFontSize(14);
+                doc.setFontSize(16);
                 doc.setTextColor(52, 152, 219);
                 doc.text(`AI Educator Persona: ${currentPersona.name}`, width/2, yPos, { align: 'center' });
                 yPos += 15;
@@ -1380,46 +1380,46 @@ function createHorizontalBarChart(clusterScores) {
                         doc.setFontSize(11);
                         doc.setFont(undefined, 'normal');
 
-		// Ensure long sentences wrap to another line
+		// Loop through each question in this competency area
 		cluster.questions.forEach(qNum => {
-  		  const qElement = document.querySelector(`label[for="q${qNum}-${userResponses['q' + qNum]}"]`);
-  		  if (qElement) {
-       			const questionText = document.querySelector(`#q${qNum}-1`).closest('.question').querySelector('p').textContent;
-        		const responseText = qElement.textContent;
+			const qElement = document.querySelector(`label[for="q${qNum}-${userResponses['q' + qNum]}"]`);
+			if (qElement) {
+	        		// Check if we need to add a new page before adding this question
+		       		if (yPos + 30 > doc.internal.pageSize.getHeight() - margin) {
+		            		doc.addPage();
+		            		yPos = 20;
+	        		}
         
-        		const qText = `Q${Math.floor((qNum-1)/3) + 1}.${((qNum-1)%3) + 1}: ${questionText.split(':')[1].trim()}`;
-       			const splitQ = doc.splitTextToSize(qText, width - 2*margin);
-        		doc.text(splitQ, margin, yPos);
-        		yPos += splitQ.length * 5 + 2;
+ 		       		const questionText = document.querySelector(`#q${qNum}-1`).closest('.question').querySelector('p').textContent;
+ 		       		const responseText = qElement.textContent;	
         
-        		// Fix: Add text splitting for the response text
-        		const responseFormatted = `Your response: ${responseText}`;
-        		const splitResponse = doc.splitTextToSize(responseFormatted, width - 2*margin - 5);
-        		doc.text(splitResponse, margin + 5, yPos);
-        		yPos += splitResponse.length * 5 + 3; // Adjust spacing based on number of lines
-   		 }
+ 		       		const qText = `Q${Math.floor((qNum-1)/3) + 1}.${((qNum-1)%3) + 1}: ${questionText.split(':')[1].trim()}`;
+		        	const splitQ = doc.splitTextToSize(qText, width - 2*margin);
+        
+	        		// Check if this question will fit on the current page
+		        	if (yPos + (splitQ.length * 5) + 15 > doc.internal.pageSize.getHeight() - margin) {
+		            		doc.addPage();
+		            		yPos = 20;
+	        		}
+        
+        			doc.text(splitQ, margin, yPos);
+        			yPos += splitQ.length * 5 + 2;
+        
+        			// Format and split the response text
+        			const responseFormatted = `Your response: ${responseText}`;
+        			const splitResponse = doc.splitTextToSize(responseFormatted, width - 2*margin - 5);
+        
+        			// Check if response will fit on current page
+        			if (yPos + (splitResponse.length * 5) + 10 > doc.internal.pageSize.getHeight() - margin) {
+            				doc.addPage();
+            				yPos = 20;
+        			}
+        
+        			doc.text(splitResponse, margin + 5, yPos);
+        			yPos += splitResponse.length * 5 + 8; // Increased spacing for better readability
+    			}
 		});
                         
-                        // Loop through each question in this competency area
-                        cluster.questions.forEach(qNum => {
-                            const qElement = document.querySelector(`label[for="q${qNum}-${userResponses['q' + qNum]}"]`);
-                            if (qElement) {
-                                const questionText = document.querySelector(`#q${qNum}-1`).closest('.question').querySelector('p').textContent;
-                                const responseText = qElement.textContent;
-                                
-                                const qText = `Q${Math.floor((qNum-1)/3) + 1}.${((qNum-1)%3) + 1}: ${questionText.split(':')[1].trim()}`;
-                                const splitQ = doc.splitTextToSize(qText, width - 2*margin);
-                                doc.text(splitQ, margin, yPos);
-                                yPos += splitQ.length * 5 + 2;
-                                
-                                doc.text(`Your response: ${responseText}`, margin + 5, yPos);
-                                yPos += 8;
-                            }
-                        });
-                        
-                        yPos += 5; // Extra space between competency areas
-                    });
-			
 		    // Add footnote
                     doc.setFontSize(12);
                     doc.text('The Educator Competency Framework this assessment is based on is available for download at: https://www.eduvators.net/product-detail/educator-ai-competency-framework/2409', margin, yPos);
