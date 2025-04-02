@@ -1379,6 +1379,26 @@ function createHorizontalBarChart(clusterScores) {
                         
                         doc.setFontSize(11);
                         doc.setFont(undefined, 'normal');
+
+		// Ensure long sentences wrap to another line
+		cluster.questions.forEach(qNum => {
+  		  const qElement = document.querySelector(`label[for="q${qNum}-${userResponses['q' + qNum]}"]`);
+  		  if (qElement) {
+       			const questionText = document.querySelector(`#q${qNum}-1`).closest('.question').querySelector('p').textContent;
+        		const responseText = qElement.textContent;
+        
+        		const qText = `Q${Math.floor((qNum-1)/3) + 1}.${((qNum-1)%3) + 1}: ${questionText.split(':')[1].trim()}`;
+       			const splitQ = doc.splitTextToSize(qText, width - 2*margin);
+        		doc.text(splitQ, margin, yPos);
+        		yPos += splitQ.length * 5 + 2;
+        
+        		// Fix: Add text splitting for the response text
+        		const responseFormatted = `Your response: ${responseText}`;
+        		const splitResponse = doc.splitTextToSize(responseFormatted, width - 2*margin - 5);
+        		doc.text(splitResponse, margin + 5, yPos);
+        		yPos += splitResponse.length * 5 + 3; // Adjust spacing based on number of lines
+   		 }
+		});
                         
                         // Loop through each question in this competency area
                         cluster.questions.forEach(qNum => {
